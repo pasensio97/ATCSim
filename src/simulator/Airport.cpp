@@ -268,7 +268,8 @@ Airport::removeFlight(std::string id)
 			{
 				delete(*it);
 				focus = flights.erase(it);
-				(*focus)->setFocused(true);
+				if(flights.size() > 1)
+					(*focus)->setFocused(true);
 				return focus;
 			}else
 			{
