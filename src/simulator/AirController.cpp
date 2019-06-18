@@ -69,8 +69,8 @@ TCAS(Flight *f)
                   f->setIsLanding(false);
                   f->setIsNewLanding(true);
                   f->setIsApproached(false);
+                    std::cerr << "TCASSSSS" << '\n';
                 }
-
             }else if (distance_to_airport1 < distance_to_airport2){
               (*it)->setInclination( (*it)->getInclination() + pitch ); //goes up
               f->setInclination( f->getInclination() - pitch ); // goes down
@@ -79,6 +79,7 @@ TCAS(Flight *f)
                 (*it)->setIsLanding(false);
                 (*it)->setIsNewLanding(true);
                 (*it)->setIsApproached(false);
+                std::cerr << "TCASSSSS" << '\n';
               }
             }
           }
@@ -259,7 +260,7 @@ assign_approach(Flight *f)
   compare_distances.sort();
   it = compare_distances.begin();
 
-  if(!f->getIsApproached()){
+  if(!f->getIsApproached()  && !f->getIsLanding()){
     f->getRoute()->clear();
     if(distance0 == (*it) ){
       f->getRoute()->push_front(r0);
@@ -332,7 +333,6 @@ AirController::landing(Flight *f)
     f->getRoute()->push_front(r1);
     f->getRoute()->push_front(r0);
     f->setIsNewLanding(false);
-    std::cerr << "SE ASIGNA LAND" << '\n';
 	}
 }
 
@@ -344,7 +344,7 @@ AirController::doWork()
 
   for(it = flights.begin(); it!=flights.end(); ++it)
   {
-    /*//TCAS(*it);
+    TCAS(*it);
     if( (*it)->getIsSiding() && (*it)->getIsNewSidind() ){
       (*it)->getRoute()->clear();
       siding(*it);
@@ -352,16 +352,15 @@ AirController::doWork()
     }else if( (*it)->getIsLanding() && (*it)->getIsNewLanding() ){
       (*it)->getRoute()->clear();
       landing(*it);
-      std::cerr << "ENTRA LANDING" << '\n';
     }else{
       assign_approach(*it);
-    }*/
-    assign_approach(*it);
+    }
+    /*assign_approach(*it);
     if( (*it)->getIsLanding() && (*it)->getIsNewLanding() ){
       (*it)->getRoute()->clear();
       landing(*it);
       std::cerr << "ENTRA LANDING" << '\n';
-    }
+    }*/
 	}
 
 }
