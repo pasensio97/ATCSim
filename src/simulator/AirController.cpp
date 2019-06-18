@@ -45,8 +45,8 @@ TCAS(Flight *f)
 {
   Position pos0(3500.0, 0.0, 100.0);
 
-  float distance_safety = COLLISION_DISTANCE*2;
-  float critical_distance = COLLISION_DISTANCE*1.5;
+  float distance_safety = COLLISION_DISTANCE*3;
+  float critical_distance = COLLISION_DISTANCE*3;
 
   std::list<Flight*> flights = Airport::getInstance()->getFlights();
   std::list<Flight*>::iterator it;
@@ -59,7 +59,7 @@ TCAS(Flight *f)
       if (distance < distance_safety){
 
           if(distance < critical_distance){
-            float pitch = asin(15*M_PI/180);
+            float pitch = asin(5*M_PI/180);
             if( !f->getIsSiding() ){
               if (distance_to_airport1 > distance_to_airport2){
                 f->setInclination( f->getInclination() + pitch); //goes up
@@ -69,23 +69,26 @@ TCAS(Flight *f)
                   f->setIsLanding(false);
                   f->setIsNewLanding(true);
                   f->setIsApproached(false);
-                    std::cerr << "TCASSSSS" << '\n';
                 }
-            }else if (distance_to_airport1 < distance_to_airport2){
-              (*it)->setInclination( (*it)->getInclination() + pitch ); //goes up
-              f->setInclination( f->getInclination() - pitch ); // goes down
-              if ((*it)->getIsSiding() == false){
-                (*it)->setIsSiding(true);
-                (*it)->setIsLanding(false);
-                (*it)->setIsNewLanding(true);
-                (*it)->setIsApproached(false);
-                std::cerr << "TCASSSSS" << '\n';
+              }else if (distance_to_airport1 < distance_to_airport2){
+                (*it)->setInclination( (*it)->getInclination() + pitch ); //goes up
+                f->setInclination( f->getInclination() - pitch ); // goes down
+                if ((*it)->getIsSiding() == false){
+                  (*it)->setIsSiding(true);
+                  (*it)->setIsLanding(false);
+                  (*it)->setIsNewLanding(true);
+                  (*it)->setIsApproached(false);
               }
             }
           }
         }
+       /* 
+        (*it)->setSpeed( (*it)->getSpeed()*0.9  );
 
-std::cerr << "AQUIIIIIIIIIIIIIIIII" << '\n';
+        if( (*it)->getSpeed() < CRASH_SPEED)
+          (*it)->setSpeed(CRASH_SPEED);
+        
+        */
 
     	}
     }
@@ -108,11 +111,11 @@ siding(Flight *f)
   Position posA2(-10000.0,-8500.0, 5000);
   Position posB2(-10000.0, 8500.0, 5000);
 
-  Position posA3(-7500.0,-5250.0, 5000);
-  Position posB3(-7500.0, 5250.0, 5000);
+  Position posA3(-7500.0,-11750.0, 4000);
+  Position posB3(-7500.0, 11750.0, 4000);
 
-  Position posA4(-3500.0,-15000.0, 5000);
-  Position posB4(-3500.0, 15000.0, 5000);
+  Position posA4(-3500.0,-15000.0, 3000);
+  Position posB4(-3500.0, 15000.0, 3000);
 
   Route rA0, rA1, rA2, rA3, rA4;
   Route rB0, rB1, rB2, rB3, rB4;
@@ -120,23 +123,23 @@ siding(Flight *f)
   rA0.pos = posA0;
   rA0.speed = 250;
   rB0.pos = posB0;
-  rB0.speed = 250;
+  rB0.speed = 200;
   rA1.pos = posA1;
-  rA1.speed = 250;
+  rA1.speed = 200;
   rB1.pos = posB1;
-  rB1.speed = 250;
+  rB1.speed = 200;
   rA2.pos = posA2;
-  rA2.speed = 250;
+  rA2.speed = 200;
   rB2.pos = posB2;
-  rB2.speed = 250;
+  rB2.speed = 200;
   rA3.pos = posA3;
-  rA3.speed = 250;
+  rA3.speed = 200;
   rB3.pos = posB3;
-  rB3.speed = 250;
+  rB3.speed = 200;
   rA4.pos = posA4;
-  rA4.speed = 250;
+  rA4.speed = 200;
   rB4.pos = posB4;
-  rB4.speed = 250;
+  rB4.speed = 200;
 
   actual_position = f->getPosition();
 
@@ -150,7 +153,7 @@ siding(Flight *f)
       f->getRoute()->push_back(rA2);
       f->getRoute()->push_back(rA3);
       f->getRoute()->push_back(rA4);
-      f->setIsNewSidind(false);
+      f->setIsNewSidind(false); 
     }else{
       f->getRoute()->push_front(rB0);
       f->getRoute()->push_back(rB1);
@@ -161,11 +164,8 @@ siding(Flight *f)
     }
   }
 
-  if(actual_position.distance(posA4) < 50 ||  actual_position.distance(posB4) < 50){
-    f->setIsSiding(false);
-    f->setIsApproached(true);
-  }
-  std::cerr << "SIDIIIIING" << '\n';
+  
+ 
 }
 
 void
@@ -344,23 +344,27 @@ AirController::doWork()
 
   for(it = flights.begin(); it!=flights.end(); ++it)
   {
+    Position actual_position;
+    Position posA4(-3500.0,-15000.0, 5000);
+    Position posB4(-3500.0, 15000.0, 5000);
+    actual_position = (*it)->getPosition();
+
     TCAS(*it);
-    if( (*it)->getIsSiding() && (*it)->getIsNewSidind() ){
+    if(actual_position.distance(posA4) < 50 ||  actual_position.distance(posB4) < 50){
+      (*it)->setIsSiding(false);
+      (*it)->setIsNewSidind(true);
+      (*it)->getRoute()->clear();
+      assign_approach(*it);
+      std::cerr<<"AQUIIIIIIIIIIIII"<< '\n';
+    }else if( (*it)->getIsSiding() && (*it)->getIsNewSidind() ){
       (*it)->getRoute()->clear();
       siding(*it);
-      std::cerr << "ENTRA SIDING" << '\n';
     }else if( (*it)->getIsLanding() && (*it)->getIsNewLanding() ){
       (*it)->getRoute()->clear();
       landing(*it);
-    }else{
+    }else if(!(*it)->getIsSiding()){
       assign_approach(*it);
     }
-    /*assign_approach(*it);
-    if( (*it)->getIsLanding() && (*it)->getIsNewLanding() ){
-      (*it)->getRoute()->clear();
-      landing(*it);
-      std::cerr << "ENTRA LANDING" << '\n';
-    }*/
 	}
 
 }
