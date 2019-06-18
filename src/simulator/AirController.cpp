@@ -345,18 +345,12 @@ AirController::doWork()
   for(it = flights.begin(); it!=flights.end(); ++it)
   {
     Position actual_position;
-    Position posA4(-3500.0,-15000.0, 5000);
-    Position posB4(-3500.0, 15000.0, 5000);
+    Position posA4(-3500.0,-15000.0, 3000);
+    Position posB4(-3500.0, 15000.0, 3000);
     actual_position = (*it)->getPosition();
 
     TCAS(*it);
-    if(actual_position.distance(posA4) < 50 ||  actual_position.distance(posB4) < 50){
-      (*it)->setIsSiding(false);
-      (*it)->setIsNewSidind(true);
-      (*it)->getRoute()->clear();
-      assign_approach(*it);
-      std::cerr<<"AQUIIIIIIIIIIIII"<< '\n';
-    }else if( (*it)->getIsSiding() && (*it)->getIsNewSidind() ){
+    if( (*it)->getIsSiding() && (*it)->getIsNewSidind() ){
       (*it)->getRoute()->clear();
       siding(*it);
     }else if( (*it)->getIsLanding() && (*it)->getIsNewLanding() ){
@@ -365,6 +359,18 @@ AirController::doWork()
     }else if(!(*it)->getIsSiding()){
       assign_approach(*it);
     }
+
+     if(actual_position.distance(posA4) < 50 ||  actual_position.distance(posB4) < 50){
+      (*it)->getRoute()->clear();
+      if((*it)->getRoute()->empty()){
+        (*it)->setIsApproached(false);
+        (*it)->setIsLanding(false);
+        (*it)->setIsNewLanding(true);
+        (*it)->setIsSiding(false);
+        (*it)->setIsNewSidind(true);
+        assign_approach(*it);
+      }
+    } 
 	}
 
 }
