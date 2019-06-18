@@ -26,6 +26,8 @@
 #define AIRCONTROLLER_H_
 
 #include "Singleton.h"
+#include "Flight.h"
+#include "Airport.h"
 
 namespace atcsim{
 
@@ -33,6 +35,8 @@ class AirController: public Singleton<AirController> {
 public:
 	AirController();
 	virtual ~AirController();
+
+	void landing(Flight *f);
 
 	void doWork();
 };

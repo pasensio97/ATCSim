@@ -56,6 +56,11 @@ Flight::Flight(std::string _id, Position _pos, float _bearing, float _inclinatio
 
 	route.clear();
 	inStorm = false;
+	isApproached = false;
+	isLanding = false;
+	isNewLanding = true;
+	isSiding = false;
+	isNewSidind = true;
 
 	focused = false;
 	points = INIT_FLIGHT_POINTS;

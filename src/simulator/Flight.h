@@ -49,6 +49,7 @@ public:
 	std::list<Route> *getRoute() { return &route;};
 	bool routed() { return !route.empty();};
 	Position getPosition() { return pos;};
+	void setInclination(float pitch) {inclination = pitch;};
 	float getInclination() { return inclination;};
 	float getBearing() { return bearing;};
 	float getInitBearing() { return init_bearing;};
@@ -62,6 +63,21 @@ public:
 	bool getInStorm() {return inStorm;};
 	void setInStorm(bool in) {inStorm=in;};
 
+	bool getIsLanding() {return isLanding;};
+	void setIsLanding(bool in) {isLanding=in;};
+
+	bool getIsNewLanding() {return isNewLanding;};
+	void setIsNewLanding(bool in) {isNewLanding=in;};
+
+	bool getIsApproached() {return isApproached;};
+	void setIsApproached(bool in) {isApproached=in;};
+
+	bool getIsSiding() {return isSiding;};
+	void setIsSiding(bool in) {isSiding=in;};
+
+	bool getIsNewSidind() {return isNewSidind;};
+	void setIsNewSidind(bool in) {isNewSidind=in;};
+
 private:
 	std::string id;
 	Position pos, last_pos;
@@ -71,6 +87,11 @@ private:
 	bool focused;
 
 	bool inStorm;
+	bool isApproached;
+	bool isLanding;
+	bool isNewLanding;
+	bool isSiding;
+	bool isNewSidind;
 
 	float points;
 
